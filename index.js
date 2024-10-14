@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import { Client } from 'pg'; // Importing `Client` directly from 'pg'
+import pkg from 'pg'; // Importing `pg` from 'pg'
+const { Client } = pkg; // Importing `Client` directly from 'pg'
 import dotenv from 'dotenv';
 
 // Load environment variables
