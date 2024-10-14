@@ -1,28 +1,43 @@
 import express from "express";
 import cors from "cors";
 import pkg from 'pg';
-const { Client } = pkg;
 import dotenv from 'dotenv';
 
 dotenv.config();
 
+const { Client } = pkg;
+
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
 // Database connection
-const client = new Client({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
+let client;
 
+if (process.env.DATABASE_URL) {
+  // Render or production environment
+  client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false, // Necessary for Render's managed database
+    },
+  });
+} else {
+  // Local environment
+  client = new Client({
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT, 10), // Parse the port as an integer
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  });
+}
 
-client.connect();
+client.connect()
+  .then(() => console.log('Connected to PostgreSQL'))
+  .catch(err => console.error('Database connection error', err.stack));
 
 // Get all tasks
 app.get("/tasks", async (req, res) => {
@@ -53,7 +68,7 @@ app.post("/tasks", async (req, res) => {
 // Update a task
 app.put("/tasks/:id", async (req, res) => {
   const { id } = req.params;
-  const { title, description, completed } = req.body; // Ensure completed is included
+  const { title, description, completed } = req.body;
   try {
     const result = await client.query(
       "UPDATE tasks SET title = $1, description = $2, completed = $3 WHERE id = $4 RETURNING *",
