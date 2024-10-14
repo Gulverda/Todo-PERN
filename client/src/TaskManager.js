@@ -8,7 +8,7 @@ const TaskManager = () => {
   // Fetch tasks from the backend
   useEffect(() => {
     const fetchTasks = async () => {
-      const response = await axios.get("https://todo-pern-i4hh.onrender.com/tasks");
+      const response = await axios.get("http://localhost:5000/tasks");
       setTasks(response.data);
     };
     fetchTasks();
@@ -16,14 +16,14 @@ const TaskManager = () => {
 
   // Add a new task
   const addTask = async () => {
-    const response = await axios.post("https://todo-pern-i4hh.onrender.com/tasks", newTask);
+    const response = await axios.post("http://localhost:5000/tasks", newTask);
     setTasks([...tasks, response.data]);
     setNewTask({ title: "", description: "" });
   };
 
   // Update a task
   const updateTask = async (id, updatedTask) => {
-    const response = await axios.put(`https://todo-pern-i4hh.onrender.com/tasks/${id}`, {
+    const response = await axios.put(`http://localhost:5000/tasks/${id}`, {
       title: updatedTask.title,
       description: updatedTask.description,
       completed: !updatedTask.completed, // Toggle the completed status
@@ -33,7 +33,7 @@ const TaskManager = () => {
 
   // Delete a task
   const deleteTask = async (id) => {
-    await axios.delete(`https://todo-pern-i4hh.onrender.com/tasks/${id}`);
+    await axios.delete(`http://localhost:5000/tasks/${id}`);
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
